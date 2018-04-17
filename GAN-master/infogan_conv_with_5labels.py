@@ -45,7 +45,7 @@ class InfoGAN():
 		# data
                 self.z_dim = self.data.z_dim
 		#self.c_dim = self.data.y_dim # condition
-                self.c_dim=19
+                self.c_dim=20
                 self.size = self.data.size
                 self.channel = self.data.channel
 
@@ -67,9 +67,11 @@ class InfoGAN():
                 self.D_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=self.D_real, labels=tf.ones_like(self.D_real))) + tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=self.D_fake, labels=tf.zeros_like(self.D_fake)))
                 self.G_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=self.D_fake, labels=tf.ones_like(self.D_fake)))
                 # fake_discri=tf.sigmoid(self.D_fake)
-                cat_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.Q_fake[:,:10], labels=self.c[:,:10]))
-                continuals_out=self.Q_fake[:,10:self.c_dim]
-                continuals_real=self.c[:,10:self.c_dim]
+                # cat_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.Q_fake[:,:10], labels=self.c[:,:10]))
+                # continuals_out=self.Q_fake[:,10:self.c_dim]
+                # continuals_real=self.c[:,10:self.c_dim]
+                continuals_out=self.Q_fake[:,:self.c_dim]
+                continuals_real=self.c[:,:self.c_dim]
                 std=tf.reduce_mean(tf.abs(self.Q_fake[:,self.c_dim:]),axis=0)
                 print(std.shape)
                 TINY=0.0000001
@@ -77,7 +79,7 @@ class InfoGAN():
                 print(epsilon.shape)
                 epsilon=1./epsilon
                 continuals_loss=tf.reduce_mean(epsilon)
-                self.Q_loss=cat_loss+continuals_loss
+                self.Q_loss=continuals_loss
 		# solver
                 self.D_solver = tf.train.AdamOptimizer().minimize(self.D_loss, var_list=self.discriminator.vars)
                 self.G_solver = tf.train.AdamOptimizer().minimize(self.G_loss, var_list=self.generator.vars)
@@ -93,11 +95,11 @@ class InfoGAN():
                 for var in self.generator.vars:
                         tf.summary.histogram(var.name,var)
                 self.saver = tf.train.Saver()
-		# gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
-                gpu_options = tf.GPUOptions()
+                gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.6)
+                # gpu_options = tf.GPUOptions()
                 self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
-	def train(self, sample_dir, ckpt_dir='ckpt', training_epoches = 1000000, batch_size = 256):
+	def train(self, sample_dir, ckpt_dir='ckpt', training_epoches = 1000000, batch_size = 512):
 		fig_count = 0
 		train_writer = tf.summary.FileWriter(sample_dir + '/train',self.sess.graph)
 		self.sess.run(tf.global_variables_initializer())
@@ -168,7 +170,7 @@ if __name__ == '__main__':
 
 	# param
 	generator = G_conv_mnist()
-	discriminator = D_conv_mnist_expanded(28)
+	discriminator = D_conv_mnist_expanded(40)
 	classifier = C_conv_mnist_diff_scale(9)
 	data = mnist()
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
