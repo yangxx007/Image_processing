@@ -1,2 +1,2 @@
-model_checkpoint_path: "infogan.9labels.advance.ckpt"
-all_model_checkpoint_paths: "infogan.9labels.advance.ckpt"
+model_checkpoint_path: "infogan.9labels.advance.2.ckpt"
+all_model_checkpoint_paths: "infogan.9labels.advance.2.ckpt"
