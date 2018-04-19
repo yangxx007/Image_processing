@@ -27,8 +27,8 @@ def sample_c(m, n, ind=-1):
 	for i in range(m):
 		if ind<0:
 			ind = np.random.randint(10)
-		c[i,i%10] = 1.
-		for j in range(10,n):
+		# c[i,i%10] = 1.
+		for j in range(0,n):
 			c[i,j]=np.random.uniform(-2.,2.)
 	return c
 
